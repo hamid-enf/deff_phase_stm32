@@ -1,0 +1,21 @@
+# Keil MDK build artifacts
+m12345/MDK-ARM/m12345/
+m12345/MDK-ARM/Listings/
+m12345/MDK-ARM/Objects/
+m12345/MDK-ARM/EventRecorderStub.scvd
+
+# Keil user-specific GUI / layout files
+*.uvguix.*
+
+# Backup and dependency files
+*.bak
+*.dep
+*.axf
+*.hex
+*.htm
+*.build_log.htm
+
+# Editor / OS junk
+*.swp
+.DS_Store
+Thumbs.db
