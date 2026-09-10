@@ -1,41 +1,21 @@
-/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file    tim.h
-  * @brief   This file provides code for the configuration
-  *          of the TIM instances.
-  ******************************************************************************
-  * @attention
+  * @brief   Three-phase inverter configuration and TIM1 driver API.
   *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
+  * All user-adjustable parameters are in the block below. Each one can also
+  * be overridden from the compiler command line (they use #ifndef guards).
   ******************************************************************************
   */
-/* USER CODE END Header */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __TIM_H__
-#define __TIM_H__
+#ifndef TIM_H
+#define TIM_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-extern TIM_HandleTypeDef htim1;
-
-/* USER CODE BEGIN Private defines */
 
 /* ========================================================================= */
 /*  THREE-PHASE INVERTER CONFIGURATION                                       */
@@ -59,13 +39,11 @@ extern TIM_HandleTypeDef htim1;
 #define INVERTER_MODE_SIX_STEP  1
 
 #ifndef INVERTER_MODE
-#ifndef INVERTER_MODE
 #define INVERTER_MODE           INVERTER_MODE_SPWM
 #endif
-#endif
 
-/* Timer input clock in Hz. TIM1 sits on APB2 -> 72 MHz with the current
- * clock tree (HSE 8 MHz x9 PLL = SYSCLK 72 MHz, APB2 div 1). */
+/* Timer input clock in Hz. TIM1 sits on APB2 -> 72 MHz with the clock tree
+ * configured in SystemClock_Config() (HSE 8 MHz x9 PLL = SYSCLK 72 MHz). */
 #define INVERTER_TIM_CLK_HZ     72000000UL
 
 /* --- SPWM mode parameters ------------------------------------------------ */
@@ -114,7 +92,7 @@ extern TIM_HandleTypeDef htim1;
  *   - pin left open or held high ......... inverter runs
  *   - pin pulled low (fault contact, ..... all 6 outputs switched off in
  *     over-current detector, button)        hardware, within one timer cycle
- * Set ENABLE_BREAK_INPUT to 0 only if you do not want the BKIN pin used. */
+ * Set INVERTER_ENABLE_BREAK to 0 only if you do not want the BKIN pin used. */
 #ifndef INVERTER_ENABLE_BREAK
 #define INVERTER_ENABLE_BREAK   1
 #endif
@@ -125,8 +103,6 @@ extern TIM_HandleTypeDef htim1;
 #ifndef INVERTER_AUTO_REARM
 #define INVERTER_AUTO_REARM     1
 #endif
-
-/* USER CODE END Private defines */
 
 /* --- Derived values (do not edit) ---------------------------------------- */
 /* Frequencies that do not divide the 72 MHz timer clock exactly are
@@ -142,22 +118,26 @@ extern TIM_HandleTypeDef htim1;
 #error "SIXSTEP_ELECTRICAL_HZ is too low for a 72 MHz timer clock"
 #endif
 
-void MX_TIM1_Init(void);
+/* ========================================================================= */
+/*  Driver API                                                               */
+/* ========================================================================= */
 
-/* USER CODE BEGIN Models API */
+/* Configures TIM1: three complementary PWM channels, dead time, break. */
+void Inverter_Init(void);
 
-/* Starts all three complementary PWM output pairs + update interrupt.
- * Call once after MX_TIM1_Init(). */
+/* Starts all three complementary output pairs + update interrupt. */
 void Inverter_Start(void);
 
 /* Only needed when INVERTER_AUTO_REARM == 0: re-enables the main output
  * (MOE) after a break event has been cleared. */
 void Inverter_RearmAfterBreak(void);
 
-/* USER CODE END Models API */
+/* Modulation tick, called from TIM1_UP_IRQHandler. Implements SPWM duty
+ * refresh or six-step commutation depending on INVERTER_MODE. */
+void Inverter_OnUpdate(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __TIM_H__ */
+#endif /* TIM_H */

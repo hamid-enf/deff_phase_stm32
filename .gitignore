@@ -4,8 +4,10 @@ m12345/MDK-ARM/Listings/
 m12345/MDK-ARM/Objects/
 m12345/MDK-ARM/EventRecorderStub.scvd
 
-# Keil user-specific GUI / layout files
+# Keil user-specific GUI / layout / options files
+# (per-user debugger + editor state; uVision regenerates them on open)
 *.uvguix.*
+*.uvoptx
 
 # Backup and dependency files
 *.bak
@@ -19,3 +21,9 @@ m12345/MDK-ARM/EventRecorderStub.scvd
 *.swp
 .DS_Store
 Thumbs.db
+
+# Archives / large binaries (keep the repo source-only)
+*.rar
+*.zip
+*.7z
+*.patch
